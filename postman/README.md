@@ -3,7 +3,7 @@
 ## Postman
 
 1. Установите JDK 17 или новее и задайте JAVA_HOME.
-2. В корне проекта запустите приложение: `./mvnw.cmd spring-boot:run` (Windows) или `./mvnw spring-boot:run` (Linux/macOS).
+2. В корне проекта запустите приложение: `./mvnw.cmd -pl hotel spring-boot:run` (Windows) или `./mvnw -pl hotel spring-boot:run` (Linux/macOS).
 3. Импортируйте `Hotel.postman_collection.json` и `Local.postman_environment.json` в Postman.
 4. Выберите окружение **Hotel local**, при необходимости измените `baseUrl` (по умолчанию `http://localhost:8080`).
 5. Запустите всю коллекцию через Collection Runner.
@@ -23,15 +23,15 @@ npx --yes newman run postman/Hotel.postman_collection.json -e postman/Local.post
 В корне проекта:
 
 ```powershell
-./mvnw.cmd clean verify
+./mvnw.cmd -pl hotel clean verify
 ```
 
-JaCoCo формирует HTML-отчёт в `target/site/jacoco/index.html` и XML в `target/site/jacoco/jacoco.xml`. На фазе verify сборка завершается ошибкой, если покрытие строк, методов или ветвей всего приложения ниже 80%. Исключений классов из расчёта нет; сгенерированный Lombok-код фильтруется самим JaCoCo.
+JaCoCo формирует HTML-отчёт в `hotel/target/site/jacoco/index.html` и XML в `hotel/target/site/jacoco/jacoco.xml`. На фазе verify сборка завершается ошибкой, если покрытие строк, методов или ветвей всего приложения ниже 80%. Исключений классов из расчёта нет; сгенерированный Lombok-код фильтруется самим JaCoCo.
 
 Только юнит-тесты (включая изолированные тесты MVC с mock-сервисом):
 
 ```powershell
-./mvnw.cmd clean verify "-Dtest=HotelServiceTest,HotelControllerTest,RoomMapperTest,ClientDtoTest"
+./mvnw.cmd -pl hotel clean verify "-Dtest=HotelServiceTest,HotelControllerTest,RoomMapperTest,ClientDtoTest"
 ```
 
 - HotelServiceTest: передача бюджета в репозиторий, преобразование нескольких результатов, отсутствие подходящих комнат, отсутствие записи клиентов и заселения при поиске.
@@ -52,7 +52,7 @@ Maven verify: 38 тестов, 0 ошибок, 0 пропусков. Из них
 | Только юнит-тесты | 88,89% (24/27) | 83,33% (10/12) | 100% (2/2) |
 | Полный набор | 92,59% (25/27) | 91,67% (11/12) | 100% (2/2) |
 
-Отдельный отчёт юнит-тестов сохранён в `target/site/jacoco-unit/index.html`, полный — в `target/site/jacoco/index.html`. Каталог target не хранится в Git; отчёты можно получить повторным запуском команд выше.
+Отчёт текущего запуска формируется в `hotel/target/site/jacoco/index.html`. Запуск только юнит-тестов перезаписывает этот отчёт. Каталоги target не хранятся в Git.
 
 ## Ограничения реализации
 
