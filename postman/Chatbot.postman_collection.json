@@ -1,0 +1,233 @@
+{
+  "info": {
+    "name": "Chatbot API",
+    "description": "Тесты API чат-бота: создание сеанса, отправка и получение сообщений, основные ошибки и завершение сеанса.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "sessionId",
+      "value": ""
+    },
+    {
+      "key": "messageText",
+      "value": "Привет, бот 🌍"
+    },
+    {
+      "key": "messageNumber",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Создать сеанс (Login)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Ожидаемый статус 201', function () { pm.response.to.have.status(201); });",
+              "const body = pm.response.json();",
+              "pm.expect(body.state).to.eql('ACTIVE');",
+              "pm.collectionVariables.set('sessionId', body.sessionId);",
+              "pm.expect(pm.response.headers.get('Location')).to.include(body.sessionId);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \" \"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/sessions"
+      }
+    },
+    {
+      "name": "2. Получить статус сеанса",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Ожидаемый статус 200', function () { pm.response.to.have.status(200); });",
+              "pm.expect(pm.response.json().state).to.eql('ACTIVE');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/sessions/{{sessionId}}"
+      }
+    },
+    {
+      "name": "3. Отправить сообщение",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Ожидаемый статус 201', function () { pm.response.to.have.status(201); });",
+              "pm.expect(pm.response.json().number).to.eql(1);",
+              "pm.expect(pm.response.json().text).to.eql(pm.collectionVariables.get('messageText'));",
+              "pm.collectionVariables.set('messageNumber', String(pm.response.json().number));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"{{messageText}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/sessions/{{sessionId}}/messages"
+      }
+    },
+    {
+      "name": "4. Вспомнить сообщение (Remember)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Ожидаемый статус 200', function () { pm.response.to.have.status(200); });",
+              "pm.expect(pm.response.json().text).to.eql(pm.collectionVariables.get('messageText'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/sessions/{{sessionId}}/messages/{{messageNumber}}"
+      }
+    },
+    {
+      "name": "5. Проверить пустое сообщение",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Ожидаемый статус 400', function () { pm.response.to.have.status(400); });",
+              "pm.expect(pm.response.json().code).to.eql('INVALID_REQUEST');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \" \"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/sessions/{{sessionId}}/messages"
+      }
+    },
+    {
+      "name": "6. Проверить неизвестное сообщение",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Ожидаемый статус 404', function () { pm.response.to.have.status(404); });",
+              "pm.expect(pm.response.json().code).to.eql('MESSAGE_NOT_FOUND');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/sessions/{{sessionId}}/messages/999999"
+      }
+    },
+    {
+      "name": "7. Завершить сеанс (Logout)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Ожидаемый статус 204', function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/sessions/{{sessionId}}"
+      }
+    },
+    {
+      "name": "8. Проверить завершённый сеанс",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Ожидаемый статус 404', function () { pm.response.to.have.status(404); });",
+              "pm.expect(pm.response.json().code).to.eql('SESSION_NOT_FOUND');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/sessions/{{sessionId}}"
+      }
+    }
+  ]
+}

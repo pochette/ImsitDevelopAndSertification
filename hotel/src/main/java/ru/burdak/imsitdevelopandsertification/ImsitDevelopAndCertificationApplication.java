@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ImsitDevelopAndSertificationApplication {
+public class ImsitDevelopAndCertificationApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ImsitDevelopAndSertificationApplication.class, args);
+        SpringApplication.run(ImsitDevelopAndCertificationApplication.class, args);
     }
 
 }

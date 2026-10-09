@@ -1,12 +1,12 @@
 package ru.burdak.chatbot.domain;
 
-import lombok.Data;
+import lombok.Getter;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-@Data
+@Getter
 public class ChatSession {
     private final UUID sessionId;
     private final Instant createdAt;
@@ -23,7 +23,8 @@ public class ChatSession {
     }
 
     public boolean isExpired(Instant now, Duration timeout) {
-        return now.isAfter(lastActivityAt.plus(timeout));
+        Instant expireAt = lastActivityAt.plus(timeout);
+        return !now.isBefore(expireAt);
     }
 
     public StoredMessage addMessage(String text, Instant now) {
@@ -67,6 +68,14 @@ public class ChatSession {
     public void close() {
         state = SessionState.CLOSED;
         messages.clear();
+    }
+
+    public List<StoredMessage> getMessages() {
+        return List.copyOf(messages);
+    }
+
+    public int getMessageCount() {
+        return messages.size();
     }
 
     private void ensureActive() {
